@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -122,6 +124,7 @@ export async function processCarImageWithAI(file) {
     throw new Error("Gemini API error:" + error.message);
   }
 }
+
 
 //Add a car to the database with images
 export async function addCar({ carData, images }) {
