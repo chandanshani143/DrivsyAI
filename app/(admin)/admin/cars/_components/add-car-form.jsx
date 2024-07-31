@@ -77,7 +77,19 @@ const AddCarForm = () => {
   const [activeTab, setActiveTab] = useState("ai");
   const [imageError, setImageError] = useState("");
 
-  const onSubmit = (data) => {};
+  //Remove image from upload preview
+  const removeImage = (index) => {
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  //Handing form submission
+  const onSubmit = (data) => {
+    // Check if images are uploaded
+    if (uploadedImages.length === 0) {
+      setImageError("Please upload at least one image");
+      return;
+    }
+  };
 
   //Handle multiple image uploads with dropzone
   const onMultipleImageDrop = (acceptedFiles) => {
@@ -472,11 +484,50 @@ const AddCarForm = () => {
 
                   {/* Image Previews */}
                   {uploadedImages.length > 0 && (
-                    <div>
-                      <h3>Uploaded images ({uploadedImages.length})</h3>
+                    <div className="mt-4">
+                      <h3 className="text-sm font-medium mb-2">
+                        Uploaded images ({uploadedImages.length})
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {uploadedImages.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <Image
+                              src={image}
+                              alt={`Car image ${index + 1}`}
+                              width={50}
+                              height={50}
+                              className="h-28 w-full object-cover rounded-md priority"
+                            />
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="destructive"
+                              className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => removeImage(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
+
+                <Button
+                type="submit"
+                className="w-full md:w-auto"
+                disabled={true}
+                >
+                  {true ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding Car...
+                    </>
+                  ) : (
+                    "Add Car"
+                  )}
+                </Button>
               </form>
             </CardContent>
           </Card>
