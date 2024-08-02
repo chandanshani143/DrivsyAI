@@ -33,6 +33,7 @@ import {
 
 import { addCar, processCarImageWithAI } from "@/actions/cars";
 import Image from "next/image";
+import useFetch from "@/hooks/use-fetch";
 
 // Predefined options
 const fuelTypes = ["Petrol", "Diesel", "Electric", "Hybrid", "Plug-in Hybrid"];
@@ -82,13 +83,41 @@ const AddCarForm = () => {
     setUploadedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const {
+    data: addCarResult,
+    loading: addCarLoading,
+    fn: addCarFn,
+  }
+  = useFetch(addCar);
+
+  useEffect(() => {
+    if(addCarResult?.success){
+        toast.success("Car added successfully");
+        Router.push("/admin/cars");
+    }
+  }, [addCarResult, addCarLoading]);
+
   //Handing form submission
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     // Check if images are uploaded
     if (uploadedImages.length === 0) {
       setImageError("Please upload at least one image");
       return;
     }
+    // console.log("Form data:", data);
+
+    const carData = {               //taking all data from the form and formatting some data
+        ...data,
+        year: parseInt(data.year),
+        price: parseFloat(data.price),
+        mileage: parseFloat(data.mileage),
+        seats: data.seats ? parseInt(data.seats) : null,
+    }
+
+    await addCarFn({            // Call the addCar function with the form data and images
+        carData,
+        images: uploadedImages,
+    });
   };
 
   //Handle multiple image uploads with dropzone
@@ -202,14 +231,14 @@ const AddCarForm = () => {
 
                   {/* Model */}
                   <div className="space-y-2">
-                    <Label htmlFor="make">Model</Label>
+                    <Label htmlFor="model">Model</Label>
                     <Input
-                      id="make"
+                      id="model"
                       {...register("model")}
                       placeholder="e.g. Camry"
                       className={errors.make ? "border-red-500" : ""}
                     />
-                    {errors.make && (
+                    {errors.model && (
                       <p className="text-xs text-red-500">
                         {errors.model.message}
                       </p>
@@ -517,9 +546,9 @@ const AddCarForm = () => {
                 <Button
                 type="submit"
                 className="w-full md:w-auto"
-                disabled={true}
+                disabled={addCarLoading}
                 >
-                  {true ? (
+                  {addCarLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Adding Car...
