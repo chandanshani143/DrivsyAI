@@ -186,7 +186,7 @@ export async function addCar({ carData, images }) {
       }
 
       // Get the public URL for the uploaded image
-      const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-images/${filePath}`; // disable cache in config
+      const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/cars-images/${filePath}`; // disable cache in config
 
       imageUrls.push(publicUrl);
     }
