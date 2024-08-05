@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase";
+import { serializeCarData } from "@/lib/helpers";
 
 //function to convert file to base64
 async function fileToBase64(file) {
@@ -224,5 +225,42 @@ export async function addCar({ carData, images }) {
       };
   } catch (error) {
     throw new Error("Error adding car:" + error.message);
+  }
+}
+
+
+// Fetch all cars with simple search
+export async function getCars(search = ""){
+  try {
+    // Build where conditions
+    let where = {};
+
+    //Add search filter
+    if(search) {                        //checking if anything from this matched
+      where.OR = [
+        { make: { contains: search, mode: "insensitive" }},
+        { model: { contains: search, mode: "insensitive" }},
+        { color: { contains: search, mode: "insensitive" }},
+      ];
+    }
+
+    //Execute main query
+    const cars = await db.car.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
+
+    const serializedCars = cars.map(serializeCarData);    //calling the helper function
+
+    return {
+      success: true,
+      data: serializedCars,
+    };
+  } catch (error) {
+    console.error("Error fetching cars:", error)
+    return {
+      success: false,
+      error: error.message,
+    }
   }
 }
