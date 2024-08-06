@@ -264,3 +264,77 @@ export async function getCars(search = ""){
     }
   }
 }
+
+//Delete a car by ID
+export async function deleteCar(id) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("User not authorized");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    //First, fetch the car to get its images
+    const car = await db.car.findUnique({
+      where: { id },
+      select: { images: true },
+    });
+
+    if(!car) {
+      return {
+        success: false,
+        error: "Car not found",
+      };
+    }
+
+    //Delete the car from the database
+    await db.car.delete({
+      where: { id },
+    });
+
+    // Delete the images from supabase storage
+    try {
+      const cookieStore = cookies();
+      const supabase = createClient(cookieStore);
+
+      //Extract file paths from image URLs
+      const filePaths = car.images.map((imageUrl) => {
+        const url = new URL(imageUrl);
+        const pathMatch = url.pathname.match(/\/cars-images\/(.*)/);    //checking if path match this pattern
+        return pathMatch ? pathMatch[1] : null;
+      }).
+      filter(Boolean)         //taking the matched path only
+
+      // Delete files from storage if paths were extracted
+      if (filePaths.length > 0) {
+        const { error } = await supabase.storage
+        .from("cars-images")
+        .remove(filePaths);
+
+        if(error) {
+          console.error("Error deleting images:", error);
+          // we continue even if image deletion fails
+        }
+      }
+    } catch (StorageError) {
+      console.error("Error with storage operations:", StorageError);
+      //Continue with function even if storage operations fail
+    }
+
+    // Revalidate the car list page
+    revalidatePath("/admin/cars");
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Error deleting car:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
