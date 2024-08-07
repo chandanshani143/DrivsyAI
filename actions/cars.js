@@ -338,3 +338,46 @@ export async function deleteCar(id) {
     };
   }
 }
+
+
+export async function updateCarStatus(id, { status, featured }) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("User not authorized");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    const updateData = {};   //to define what data we need to update
+
+    if(status !== undefined){
+      updateData.status = status;
+    }
+
+    if(featured != undefined) {
+      updateData.featured = featured;
+    }
+
+    //Update the car
+    await db.car.update({
+      where: { id },
+      data: updateData,
+    });
+
+    // Revalidate the car list page
+    revalidatePath("/admin/cars");
+
+    return {
+      success: true,
+    }
+  } catch (error) {
+    console.error("Error updating car status:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
