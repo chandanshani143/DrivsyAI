@@ -26,7 +26,7 @@ export async function processCarImageWithAI(file) {
 
     // Initialize Gemini API
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); // Initialize the GoogleGenerativeAI client with the API key
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // we'll use this model
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // we'll use this model
 
     const base64Image = await fileToBase64(file); // Convert the file to base64 format
 
@@ -250,7 +250,7 @@ export async function getCars(search = ""){
       orderBy: { createdAt: "desc" },
     });
 
-    const serializedCars = cars.map(serializeCarData);    //calling the helper function
+    const serializedCars = cars.map(serializeCarData);    //calling the helper function from lib/helpers.js
 
     return {
       success: true,
