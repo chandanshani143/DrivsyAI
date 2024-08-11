@@ -1,11 +1,11 @@
 import HomeSearch from "@/components/home-search";
 import { Calendar, Car, ChevronRight, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { bodyTypes, faqItems, featuredCars } from "@/lib/data";
+import { bodyTypes, carMakes, faqItems } from "@/lib/data";
+import { getFeaturedCars } from "@/actions/home";
 import CarCard from "@/components/car-card";
 import Link from "next/link";
 import Image from "next/image";
-import { carMakes } from "@/lib/data";
 import {
   Accordion,
   AccordionContent,
@@ -14,7 +14,10 @@ import {
 } from "@/components/ui/accordion";
 import { SignedOut } from "@clerk/nextjs";
 
-export default function Home() {
+export default async function Home() {
+
+  const featuredCars = await getFeaturedCars();
+
   return (
     <div className="flex flex-col pt-20">
       {/* Hero Section with Gradient Title*/}
