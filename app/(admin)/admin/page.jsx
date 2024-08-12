@@ -1,8 +1,8 @@
 // import { getDashboardData } from "@/actions/admin";
 
 export const metadata = {
-  title: "Dashboard | Vehiql Admin",
-  description: "Admin dashboard for Vehiql car marketplace",
+  title: "Dashboard | DrivsyAI Admin",
+  description: "Admin dashboard for DrivsyAI car marketplace",
 };
 
 export default async function AdminDashboardPage() {
