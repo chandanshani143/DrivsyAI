@@ -352,9 +352,7 @@ export async function getCarById(carId) {
   }
 }
 
-/**
- * Get user's saved cars
- */
+// Get user's saved cars for the "Saved Cars" page
 export async function getSavedCars() {
   try {
     const { userId } = await auth();
